@@ -5,6 +5,7 @@ var inject = style.styleSheet ?
     function(css) {
         style.styleSheet.cssText = css;
     } : function(css) {
+        while (style.firstChild) style.removeChild(style.firstChild);
         style.appendChild(document.createTextNode(css));
     };
 
