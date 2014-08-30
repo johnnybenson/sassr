@@ -4,6 +4,7 @@ var through = require('through2');
 var path = require('path');
 
 var sassDefaults = {
+  includePaths: [],
   outputStyle: 'compressed'
 };
 
@@ -13,7 +14,8 @@ function sassr(file, opts) {
 
   if (!/\.(scss|css)$/.test(file)) return through();
 
-  opts = _.defaults({}, opts, sassDefaults);
+  var omitFields = ['file', 'data', 'success', 'error'];
+  opts = _.omit(_.defaults({}, opts, sassDefaults), omitFields);
 
   var buffer = '';
 
@@ -24,13 +26,12 @@ function sassr(file, opts) {
 
   function end(cb) {
     var stream = this;
-    sass.render({
+    sass.render(_.defaults({
       data: buffer,
       success: success,
       error: error,
-      includePaths: [path.dirname(file)].concat(opts.includePaths),
-      outputStyle: opts.outputStyle
-    });
+      includePaths: [path.dirname(file)].concat(opts.includePaths)
+    }, opts));
     function success(css) {
       var moduleBody = sassrModuleWith( JSON.stringify(css) );
       stream.push( moduleBody );
@@ -53,6 +54,12 @@ function sassrModuleWith(css) {
     'var style = require("sassr/style");',
     'var css = ' + css + ';',
     'var appended;',
+    'module.exports.el = function() {',
+    '  return style.style;',
+    '};',
+    'module.exports.cssText = function() {',
+    '  return css;',
+    '};',
     'module.exports.append = function() {',
     '  if (!appended) style.inject(css);',
     '  appended = true;',
