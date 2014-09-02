@@ -60,7 +60,7 @@ var styleElement = styles.getStyleElement();
 
 # configuring
 
-We just set `outputStyle` to `'compressed'` by defaultyou can specify some of [configuration options](https://github.com/sass/node-sass#options) for the Sass compiler.
+We just set `outputStyle` to `'compressed'` by default. You can specify some [configuration options](https://github.com/sass/node-sass#options) for the Sass compiler.
 
 ```js
 var sassConfig = {

@@ -1,10 +1,15 @@
 {
   "name": "sassr",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Browserify SASS transform",
   "main": "index.js",
   "url": "https://github.com/johnnybenson/sassr",
   "email": "johnnybenson@gmail.com",
+  "license" : "MIT",
+  "repository" : { 
+    "type" : "git",
+    "url" : "https://github.com/johnnybenson/sassr"
+  },
   "keywords": [
     "sass",
     "css",
