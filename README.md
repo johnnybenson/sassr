@@ -49,13 +49,13 @@ styles.remove();
 Or if you didn't want to inject them in the first place, but would rather just get the CSS as a string:
 
 ```js
-var cssText = styles.css();
+var cssText = styles.getCSSText();
 ```
 
 By the way, `append` and `remove` both return a reference to the injected `<style>` element. If for some reason you just want the element without appending or removing styles, try this:
 
 ```js
-var styleElement = styles.el();
+var styleElement = styles.getStyleElement();
 ```
 
 # configuring
