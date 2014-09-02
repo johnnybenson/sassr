@@ -1,6 +1,6 @@
 {
   "name": "sassr",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Browserify SASS transform",
   "main": "index.js",
   "url": "https://github.com/johnnybenson/sassr",
@@ -8,9 +8,12 @@
   "keywords": [
     "sass",
     "css",
-    "styles"
+    "styles",
+    "Browserify",
+    "transform",
+    "scss"
   ],
-  "author": "johnny benson",
+  "author": "Johnny Benson",
   "dependencies": {
     "through2": "~0.4.1",
     "node-sass": "~0.8.1",
