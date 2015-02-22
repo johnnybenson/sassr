@@ -21,7 +21,7 @@
   "author": "Johnny Benson",
   "dependencies": {
     "through2": "~0.4.1",
-    "node-sass": "~0.8.1",
+    "node-sass": "~2.0.1",
     "underscore": "~1.6.0"
   }
 }
