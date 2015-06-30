@@ -1,4 +1,6 @@
-var _ = require('underscore');
+'use strict';
+
+var _ = require('lodash');
 var sass = require('node-sass');
 var through = require('through2');
 var path = require('path');
@@ -8,46 +10,6 @@ var sassDefaults = {
   outputStyle: 'compressed'
 };
 
-module.exports = sassr;
-
-function sassr(file, opts) {
-
-  if (!/\.(scss|css)$/.test(file)) return through();
-
-  var omitFields = ['file', 'data', 'success', 'error'];
-  opts = _.omit(_.defaults({}, opts, sassDefaults), omitFields);
-
-  var buffer = '';
-
-  function push(chunk, enc, cb) {
-    buffer += chunk;
-    cb();
-  }
-
-  function end(cb) {
-    var stream = this;
-    sass.render(_.defaults({
-      data: buffer,
-      success: success,
-      error: error,
-      includePaths: [path.dirname(file)].concat(opts.includePaths)
-    }, opts));
-    function success(css) {
-      var moduleBody = sassrModuleWith( JSON.stringify(css) );
-      stream.push( moduleBody );
-      cb();
-    }
-    function error(err) {
-      var message = 'sassr: ' + err + ' in ' + file;
-      var moduleBody = errorModuleWith(message);
-      stream.push( moduleBody );
-      stream.emit('error', message);
-      cb();
-    }
-  }
-
-  return through(push, end);
-}
 
 function sassrModuleWith(css) {
   return [
@@ -82,3 +44,44 @@ function errorModuleWith(message) {
     '};'
   ].join('\n');
 }
+
+function sassr(file, opts) {
+  if (!/\.(scss|css)$/.test(file)) {
+    return through();
+  }
+
+  var omitFields = ['file', 'data', 'success', 'error'];
+  opts = _.omit(_.defaults({}, opts, sassDefaults), omitFields);
+
+  var buffer = '';
+
+  var push = function(chunk, enc, cb) {
+    buffer += chunk;
+    cb();
+  };
+
+  var end = function(cb) {
+    var stream = this;
+    sass.render(_.defaults({
+      data: buffer,
+      includePaths: [path.dirname(file)].concat(opts.includePaths)
+    }, opts), function(err, result) {
+      var moduleBody;
+      if (err) {
+        var message = 'sassr: ' + err + ' in ' + file;
+        moduleBody = errorModuleWith(message);
+        stream.push( moduleBody );
+        stream.emit('error', message);
+      } else {
+        var css = result.css.toString();
+        moduleBody = sassrModuleWith(JSON.stringify(css));
+        stream.push( moduleBody );
+      }
+      cb();
+    });
+  };
+
+  return through(push, end);
+}
+
+module.exports = sassr;
