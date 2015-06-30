@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var _ = require('lodash');
 var sass = require('node-sass');
 var through = require('through2');
 var path = require('path');

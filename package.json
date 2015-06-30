@@ -1,14 +1,14 @@
 {
   "name": "sassr",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Browserify SASS transform",
   "main": "index.js",
   "url": "https://github.com/johnnybenson/sassr",
   "email": "johnnybenson@gmail.com",
-  "license" : "MIT",
-  "repository" : { 
-    "type" : "git",
-    "url" : "https://github.com/johnnybenson/sassr"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/johnnybenson/sassr"
   },
   "keywords": [
     "sass",
@@ -20,8 +20,8 @@
   ],
   "author": "Johnny Benson",
   "dependencies": {
-    "through2": "~0.4.1",
-    "node-sass": "~2.0.1",
-    "underscore": "~1.6.0"
+    "lodash": "^2.4.1||^3.0.0",
+    "node-sass": "^2.0.1||^3.0.0",
+    "through2": "^0.4.1"
   }
 }
