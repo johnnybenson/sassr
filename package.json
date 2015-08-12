@@ -3,6 +3,9 @@
   "version": "0.0.6",
   "description": "Browserify SASS transform",
   "main": "index.js",
+  "scripts": {
+    "test": "mocha --recursive test/lib"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/johnnybenson/sassr"
