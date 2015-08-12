@@ -14,9 +14,9 @@ describe('index', function() {
     var result;
 
     before(function(done) {
-        var b = browserify('test/mock/requires-css');
+        var b = browserify('./test/mock/requires-css');
         b.transform(index);
-        b.bundle(function(error, buffer) {
+        b.bundle(null, function(error, buffer) {
             result = buffer.toString();
             done();
         });
