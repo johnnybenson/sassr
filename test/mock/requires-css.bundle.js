@@ -1,52 +1,70 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-var style = document.createElement('style');
-document.head.appendChild(style);
+var element = document.createElement('style');
+document.head.appendChild(element);
 
-var inject = style.styleSheet ?
-    function(css) {
-        style.styleSheet.cssText = css;
-    } : function(css) {
-        while (style.firstChild) style.removeChild(style.firstChild);
-        style.appendChild(document.createTextNode(css));
-    };
+var inject;
+var eject;
 
-var eject = function(css) {
-    return inject( style.innerHTML.replace(css, '') );
+function injectIe(css) {
+    element.styleSheet.cssText = css;
+}
+
+function injectStandard(css) {
+    while (element.hasChildNodes()) {
+        element.removeChild(element.firstChild);
+    }
+
+    element.appendChild(document.createTextNode(css));
+}
+
+inject = element.styleSheet ? injectIe : injectStandard;
+eject = function(css) {
+    return inject(element.innerHTML.replace(css, ''));
 };
 
-module.exports.style = style;
-module.exports.inject = inject;
-module.exports.eject = eject;
+exports.element = element;
+exports.inject = inject;
+exports.eject = eject;
 
 },{}],2:[function(require,module,exports){
 'use strict';
 
 var css = require('./style.css');
-
-module.exports = {
-    style: css
-};
+css.append();
 
 },{"./style.css":3}],3:[function(require,module,exports){
-var style = require("sassr/style");
-var css = ".badge{background-color:#999;color:#fe57a1}\n";
+'use strict';
+
+var style = require('sassr/lib/style-element-helper');
+var css = '.badge{background-color:#999;color:#fe57a1}\n';
 var appended;
-module.exports.getStyleElement = function() {
-  return style.style;
+
+exports.getStyleElement = function() {
+    return style.element;
 };
-module.exports.getCSSText = function() {
-  return css;
+
+exports.getCSSText = function() {
+    return css;
 };
-module.exports.append = function() {
-  if (!appended) style.inject(css);
-  appended = true;
-  return style.style;
+
+exports.append = function() {
+    if (!appended) {
+        style.inject(css);
+        appended = true;
+    }
+
+    return style.element;
 };
-module.exports.remove = function() {
-  if (appended) style.eject(css);
-  appended = false;
-  return style.style;
+
+exports.remove = function() {
+    if (appended) {
+        style.eject(css);
+        appended = false;
+    }
+
+    return style.element;
 };
-},{"sassr/style":1}]},{},[2])
+
+},{"sassr/lib/style-element-helper":1}]},{},[2])
