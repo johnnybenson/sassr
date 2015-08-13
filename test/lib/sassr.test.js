@@ -4,6 +4,7 @@
 var fs = require('fs');
 var path = require('path');
 
+var jsdom = require('jsdom').jsdom;
 var assert = require('chai').assert;
 var browserify = require('browserify');
 
@@ -22,23 +23,24 @@ describe('sassr', function() {
     var inlineModule;
 
     before(function(done) {
+        global.document = jsdom('<html><head></head><body></body></html>');
+        global.window = global.document.parentWindow;
+        global.navigator = global.window.navigator;
+
         var b = browserify('./test/mock/requires-css');
         b.transform(sassr);
         b.bundle(null, function(error, buffer) {
             if (error) { console.log(error); }
             resultString = buffer.toString();
-
-            var filename = path.resolve(__dirname, '../mock/requires-css.inline.js');
-            inlineModule = moduleFromString(resultString, filename);
-
             done();
         });
     });
 
-    after(function() {
-        while (document.head.hasChildNodes()) {
-            document.head.removeChild(document.head.firstChild);
-        }
+    after(function (done) {
+        delete global.document;
+        delete global.window;
+        delete global.navigator;
+        done();
     });
 
     it('should create a module', function() {
@@ -52,7 +54,11 @@ describe('sassr', function() {
     });
 
     it('should append style to the head', function() {
-        var actual = document.head.getElementsByTagName('style')[0].textContent;
+        // Compile the module "inline". Should trigger `css.append();` from `../mock/requires-css.js`.
+        var modulePath = '../mock/requires-css.inline.js';
+        moduleFromString(resultString, path.resolve(__dirname, modulePath));
+
+        var actual = document.head.getElementsByTagName('style').item(0).textContent;
         var expected = '.badge{background-color:#999;color:#fe57a1}\n';
 
         assert.equal(actual, expected);

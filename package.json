@@ -4,7 +4,7 @@
   "description": "Browserify SASS transform",
   "main": "lib/sassr.js",
   "scripts": {
-    "test": "mocha --recursive test/before.js test/lib test/after.js"
+    "test": "mocha --recursive test/lib"
   },
   "repository": {
     "type": "git",
