@@ -108,7 +108,7 @@ describe('sassr', function() {
         moduleFromString(resultString, path.resolve(__dirname, modulePath));
 
         var actual = document.head.getElementsByTagName('style').item(0).textContent;
-        var expected = '.badge{background-color:#999;color:#fe57a1}\n';
+        var expected = '.badge{background-color:#999;color:#fe57a1;content:"badge";font-family:\'Helvitica\'}\n';
 
         assert.equal(actual, expected);
     });
@@ -119,36 +119,9 @@ describe('sassr', function() {
         moduleFromString(resultStringSync, path.resolve(__dirname, modulePath));
 
         var actual = document.head.getElementsByTagName('style').item(0).textContent;
-        var expected = '.badge{background-color:#999;color:#fe57a1}\n';
+        var expected = '.badge{background-color:#999;color:#fe57a1;content:"badge";font-family:\'Helvitica\'}\n';
 
         assert.equal(actual, expected);
-    });
-
-    describe('#compile', function() {
-        it('should be a function that accepts 2 arguments (opts, and a callback)', function() {
-            assert.instanceOf(sassr.compile, Function);
-            assert.equal(sassr.compile.length, 2);
-        });
-
-        it('should take some CSS and return CSS', function(done) {
-            sassr.compile({ data: css }, function(error, result) {
-                var actual = result.css.toString();
-                var expected = '.badge{background-color:#999;color:#fe57a1}\n';
-
-                assert.equal(actual, expected);
-                done();
-            });
-        });
-
-        it('should take some Sass and return CSS', function(done) {
-            sassr.compile({ data: scss }, function(error, result) {
-                var actual = result.css.toString();
-                var expected = '.badge{background-color:#b3b3b3;color:#fe2485}\n';
-
-                assert.equal(actual, expected);
-                done();
-            });
-        });
     });
 
     describe('#transform', function() {
@@ -161,7 +134,7 @@ describe('sassr', function() {
             sassr.transform({ data: css }, function(errMessage, module) {
                 var actual = module;
                 var expected = template(sassrModuleTpl)({
-                    css: '.badge{background-color:#999;color:#fe57a1}\\n'
+                    css: '.badge{background-color:#999;color:#fe57a1;content:\\"badge\\";font-family:\'Helvitica\'}\\n'
                 });
 
                 var actualLines = actual.split('\n');
@@ -180,7 +153,7 @@ describe('sassr', function() {
             sassr.transform({ data: scss }, function(errMessage, module) {
                 var actual = module;
                 var expected = template(sassrModuleTpl)({
-                    css: '.badge{background-color:#b3b3b3;color:#fe2485}\\n'
+                    css: '.badge{background-color:#b3b3b3;color:#fe2485;content:\\"badge\\";font-family:\'Helvitica\'}\\n'
                 });
 
                 var actualLines = actual.split('\n');
@@ -196,27 +169,6 @@ describe('sassr', function() {
         });
     });
 
-    describe('#compileSync', function() {
-        it('should be a function that accepts 1 argument (opts)', function() {
-            assert.instanceOf(sassr.compileSync, Function);
-            assert.equal(sassr.compileSync.length, 1);
-        });
-
-        it('should take some CSS and return CSS', function() {
-            var actual = sassr.compileSync({ data: css });
-            var expected = '.badge{background-color:#999;color:#fe57a1}\n';
-
-            assert.equal(actual, expected);
-        });
-
-        it('should take some Sass and return CSS', function() {
-            var actual = sassr.compileSync({ data: scss });
-            var expected = '.badge{background-color:#b3b3b3;color:#fe2485}\n';
-
-            assert.equal(actual, expected);
-        });
-    });
-
     describe('#transformSync', function() {
         it('should be a function that accepts 1 argument (opts)', function() {
             assert.instanceOf(sassr.transformSync, Function);
@@ -226,7 +178,7 @@ describe('sassr', function() {
         it('should take some CSS and return CSS', function() {
             var actual = sassr.transformSync({ data: css });
             var expected = template(sassrModuleTpl)({
-                css: '.badge{background-color:#999;color:#fe57a1}\\n'
+                css: '.badge{background-color:#999;color:#fe57a1;content:\\"badge\\";font-family:\'Helvitica\'}\\n'
             });
 
             var actualLines = actual.split('\n');
@@ -241,8 +193,8 @@ describe('sassr', function() {
         it('should take some Sass and return CSS', function() {
             var actual = sassr.transformSync({ data: scss });
             var expected = template(sassrModuleTpl)({
-                css: '.badge{background-color:#b3b3b3;color:#fe2485}\\n'
-            });
+                css: '.badge{background-color:#b3b3b3;color:#fe2485;content:\\"badge\\";font-family:\'Helvitica\'}\\n'
+            });`
 
             var actualLines = actual.split('\n');
             var expectedLines = expected.split('\n');

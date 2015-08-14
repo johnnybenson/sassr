@@ -13,6 +13,7 @@ function injectIe(css) {
 
 function injectStandard(css) {
     while (element.hasChildNodes()) {
+        // Just want to make sure that the CSS passed in, is all that winds up here.
         element.removeChild(element.firstChild);
     }
 
@@ -38,7 +39,7 @@ css.append();
 'use strict';
 
 var style = require('sassr/lib/style-element-helper');
-var css = '.badge{background-color:#999;color:#fe57a1}\n';
+var css = ".badge{background-color:#999;color:#fe57a1;content:\"badge\";font-family:'Helvitica'}\n";
 var appended;
 
 exports.getStyleElement = function() {
