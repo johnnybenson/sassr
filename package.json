@@ -2,7 +2,7 @@
   "name": "sassr",
   "version": "0.0.6",
   "description": "Browserify SASS transform",
-  "main": "lib/sassr.js",
+  "main": "index.js",
   "scripts": {
     "test": "mocha --recursive test/lib"
   },
