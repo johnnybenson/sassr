@@ -194,7 +194,7 @@ describe('sassr', function() {
             var actual = sassr.transformSync({ data: scss });
             var expected = template(sassrModuleTpl)({
                 css: '.badge{background-color:#b3b3b3;color:#fe2485;content:\\"badge\\";font-family:\'Helvitica\'}\\n'
-            });`
+            });
 
             var actualLines = actual.split('\n');
             var expectedLines = expected.split('\n');
