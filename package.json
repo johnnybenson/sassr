@@ -3,6 +3,9 @@
   "version": "0.0.6",
   "description": "Browserify SASS transform",
   "main": "index.js",
+  "scripts": {
+    "test": "mocha 'test/**/*.test.js'"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/johnnybenson/sassr"
@@ -25,5 +28,9 @@
     "node-sass": "3.0.x",
     "through2": "2.0.x"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "chai": "3.2.x",
+    "concat-stream": "1.5.x",
+    "mocha": "2.2.x"
+  }
 }
