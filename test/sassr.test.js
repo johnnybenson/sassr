@@ -13,6 +13,7 @@ var sassr = require('../');
 
 var EXPECTED_GOOD_CSS = '.badge{background-color:#999;color:#fe57a1}\n';
 var EXPECTED_GOOD_SCSS = '.badge{background-color:#b3b3b3;color:#fe2485}.badge.police{content:\'I AM A COP! SHUTUP!\'}\n';
+var EXPECTED_ERROR = '"property \\"We\\" must be followed by a \':\'"';
 
 describe('sassr', function() {
     var cssPaths = {
@@ -33,6 +34,8 @@ describe('sassr', function() {
         bad: fs.readFileSync(scssPaths.bad).toString()
     };
 
+    var txtPath = require.resolve('./fixtures/not-css.txt');
+
     function assertCSSText(source, cssText, callback) {
         var module = testUtils.loadAsModule(source);
         assert.equal(module.getCSSText(), cssText);
@@ -50,6 +53,9 @@ describe('sassr', function() {
         function sassrize(path, opts, done) {
             fs.createReadStream(path)
                 .pipe(sassr(path, opts))
+                .on('error', function(error) {
+                    done(error);
+                })
                 .pipe(concatStream({
                     encoding: 'string'
                 }, done));
@@ -67,21 +73,24 @@ describe('sassr', function() {
             });
         });
 
-        it.skip('should fail gracefully on bad CSS', function(done) {
-            // It looks like the stream transforms don't actually return that error module.
-            // They just emit the error with error.message, and call next.
-            // Not sure how to test.
-            sassrize(cssPaths.bad, {}, function(module) {
-                assertCSSText(module, '', done);
+        it('should ignore non-[S]CSS files', function(done) {
+            sassrize(txtPath, {}, function(module) {
+                assert.equal(module, 'This is not CSS.\n');
+                done();
             });
         });
 
-        it.skip('should fail gracefully on bad SCSS', function(done) {
-            // It looks like the stream transforms don't actually return that error module.
-            // They just emit the error with error.message, and call next.
-            // Not sure how to test.
-            sassrize(scssPaths.bad, {}, function(module) {
-                assertCSSText(module, '', done);
+        it('should return an error message on bad CSS', function(done) {
+            sassrize(cssPaths.bad, {}, function(error) {
+                assert.equal(error, EXPECTED_ERROR);
+                done();
+            });
+        });
+
+        it('should return an error message on bad SCSS', function(done) {
+            sassrize(scssPaths.bad, {}, function(error) {
+                assert.equal(error, EXPECTED_ERROR);
+                done();
             });
         });
     });
@@ -90,6 +99,9 @@ describe('sassr', function() {
         function sassrizeSync(path, opts, done) {
             fs.createReadStream(path)
                 .pipe(sassr.sync(path, opts))
+                .on('error', function(error) {
+                    done(error);
+                })
                 .pipe(concatStream({
                     encoding: 'string'
                 }, done));
@@ -107,21 +119,24 @@ describe('sassr', function() {
             });
         });
 
-        it.skip('should fail gracefully on bad CSS', function(done) {
-            // It looks like the stream transforms don't actually return that error module.
-            // They just emit the error with error.message, and call next.
-            // Not sure how to test.
-            sassrizeSync(cssPaths.bad, {}, function(module) {
-                assertCSSText(module, '', done);
+        it('should ignore non-[S]CSS files', function(done) {
+            sassrizeSync(txtPath, {}, function(module) {
+                assert.equal(module, 'This is not CSS.\n');
+                done();
             });
         });
 
-        it.skip('should fail gracefully on bad SCSS', function(done) {
-            // It looks like the stream transforms don't actually return that error module.
-            // They just emit the error with error.message, and call next.
-            // Not sure how to test.
-            sassrizeSync(scssPaths.bad, {}, function(module) {
-                assertCSSText(module, '', done);
+        it('should return an error message on bad CSS', function(done) {
+            sassrizeSync(cssPaths.bad, {}, function(error) {
+                assert.equal(error, EXPECTED_ERROR);
+                done();
+            });
+        });
+
+        it('should return an error message on bad SCSS', function(done) {
+            sassrizeSync(scssPaths.bad, {}, function(error) {
+                assert.equal(error, EXPECTED_ERROR);
+                done();
             });
         });
     });
