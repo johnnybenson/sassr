@@ -1,6 +1,6 @@
 {
   "name": "sassr",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Browserify SASS transform",
   "main": "index.js",
   "scripts": {
