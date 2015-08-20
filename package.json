@@ -1,6 +1,6 @@
 {
   "name": "sassr",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Browserify SASS transform",
   "main": "index.js",
   "scripts": {
@@ -25,7 +25,7 @@
   "license": "MIT",
   "dependencies": {
     "lodash": "3.10.x",
-    "node-sass": "3.0.x",
+    "node-sass": "3.2.x",
     "through2": "2.0.x"
   },
   "devDependencies": {
