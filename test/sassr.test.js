@@ -13,33 +13,42 @@ var sassr = require('../');
 
 var EXPECTED_GOOD_CSS = '.badge{background-color:#999;color:#fe57a1}\n';
 var EXPECTED_GOOD_SCSS = '.badge{background-color:#b3b3b3;color:#fe2485}.badge.police{content:\'I AM A COP! SHUTUP!\'}\n';
+var EXPECTED_AUTOPREFIXED = '.righty{-webkit-transform:rotate(90deg);-moz-transform:rotate(90deg);-ms-transform:rotate(90deg);-o-transform:rotate(90deg);transform:rotate(90deg)}\n';
+var EXPECTED_AUTOPREFIXED_DISABLED = '.righty{transform:rotate(90deg)}\n';
 var EXPECTED_ERROR = '"property \\"We\\" must be followed by a \':\'"';
 
 describe('sassr', function() {
     var cssPaths = {
         good: require.resolve('./fixtures/good.css'),
-        bad: require.resolve('./fixtures/bad.css')
+        bad: require.resolve('./fixtures/bad.css'),
     };
     var cssSources = {
         good: fs.readFileSync(cssPaths.good).toString(),
-        bad: fs.readFileSync(cssPaths.bad).toString()
+        bad: fs.readFileSync(cssPaths.bad).toString(),
     };
 
     var scssPaths = {
         good: require.resolve('./fixtures/good.scss'),
-        bad: require.resolve('./fixtures/bad.scss')
+        bad: require.resolve('./fixtures/bad.scss'),
+        autoprefixed: require.resolve('./fixtures/autoprefixed.scss'),
     };
     var scssSources = {
         good: fs.readFileSync(scssPaths.good).toString(),
-        bad: fs.readFileSync(scssPaths.bad).toString()
+        bad: fs.readFileSync(scssPaths.bad).toString(),
+        autoprefixed: fs.readFileSync(scssPaths.autoprefixed).toString(),
     };
 
     var txtPath = require.resolve('./fixtures/not-css.txt');
 
     function assertCSSText(source, cssText, callback) {
+        callback = callback || function() {};
         var module = testUtils.loadAsModule(source);
-        assert.equal(module.getCSSText(), cssText);
-        if (callback) { callback(); }
+        try {
+            assert.equal(module.getCSSText(), cssText);
+            callback();
+        } catch (error) {
+            callback(error);
+        }
     }
 
     it('should load and export sync, transform, and transformSync', function() {
@@ -51,7 +60,7 @@ describe('sassr', function() {
 
     describe('sassr', function() {
         function sassrize(path, opts, done) {
-            fs.createReadStream(path)
+            return fs.createReadStream(path)
                 .pipe(sassr(path, opts))
                 .on('error', function(error) {
                     done(error);
@@ -73,6 +82,27 @@ describe('sassr', function() {
             });
         });
 
+        it('should transform SCSS with vendor prefixes', function(done) {
+            sassrize(scssPaths.autoprefixed, {
+                autoprefixer: {
+                    browsers: ['> 0%'],
+                },
+            }, function(module) {
+                assertCSSText(module, EXPECTED_AUTOPREFIXED, done);
+            });
+        });
+
+        it('should transform SCSS without vendor prefixes', function(done) {
+            sassrize(scssPaths.autoprefixed, {
+                autoprefixer: {
+                    add: false,
+                    remove: false,
+                },
+            }, function(module) {
+                assertCSSText(module, EXPECTED_AUTOPREFIXED_DISABLED, done);
+            });
+        });
+
         it('should ignore non-[S]CSS files', function(done) {
             sassrize(txtPath, {}, function(module) {
                 assert.equal(module, 'This is not CSS.\n');
@@ -80,14 +110,14 @@ describe('sassr', function() {
             });
         });
 
-        it('should return an error message on bad CSS', function(done) {
+        it('should error on bad CSS', function(done) {
             sassrize(cssPaths.bad, {}, function(error) {
                 assert.equal(error, EXPECTED_ERROR);
                 done();
             });
         });
 
-        it('should return an error message on bad SCSS', function(done) {
+        it('should error on bad SCSS', function(done) {
             sassrize(scssPaths.bad, {}, function(error) {
                 assert.equal(error, EXPECTED_ERROR);
                 done();
@@ -119,6 +149,27 @@ describe('sassr', function() {
             });
         });
 
+        it('should transform SCSS with vendor prefixes', function(done) {
+            sassrizeSync(scssPaths.autoprefixed, {
+                autoprefixer: {
+                    browsers: ['> 0%'],
+                },
+            }, function(module) {
+                assertCSSText(module, EXPECTED_AUTOPREFIXED, done);
+            });
+        });
+
+        it('should transform SCSS without vendor prefixes', function(done) {
+            sassrizeSync(scssPaths.autoprefixed, {
+                autoprefixer: {
+                    add: false,
+                    remove: false,
+                },
+            }, function(module) {
+                assertCSSText(module, EXPECTED_AUTOPREFIXED_DISABLED, done);
+            });
+        });
+
         it('should ignore non-[S]CSS files', function(done) {
             sassrizeSync(txtPath, {}, function(module) {
                 assert.equal(module, 'This is not CSS.\n');
@@ -126,14 +177,14 @@ describe('sassr', function() {
             });
         });
 
-        it('should return an error message on bad CSS', function(done) {
+        it('should error on bad CSS', function(done) {
             sassrizeSync(cssPaths.bad, {}, function(error) {
                 assert.equal(error, EXPECTED_ERROR);
                 done();
             });
         });
 
-        it('should return an error message on bad SCSS', function(done) {
+        it('should error on bad SCSS', function(done) {
             sassrizeSync(scssPaths.bad, {}, function(error) {
                 assert.equal(error, EXPECTED_ERROR);
                 done();
@@ -148,7 +199,7 @@ describe('sassr', function() {
                 includePaths: [
                     path.dirname(cssPaths.good)
                 ]
-            }, function(error, module) {
+            }, {}, function(error, module) {
                 assertCSSText(module, EXPECTED_GOOD_CSS, done);
             });
         });
@@ -159,30 +210,61 @@ describe('sassr', function() {
                 includePaths: [
                     path.dirname(scssPaths.good)
                 ]
-            }, function(error, module) {
+            }, {}, function(error, module) {
                 assertCSSText(module, EXPECTED_GOOD_SCSS, done);
             });
         });
 
-        it('should fail gracefully on bad CSS', function(done) {
+        it('should transform SCSS with vendor prefixes', function(done) {
+            var module = sassr.transform({
+                data: scssSources.autoprefixed,
+                includePaths: [
+                    path.dirname(scssPaths.autoprefixed)
+                ]
+            }, {
+                browsers: ['> 0%']
+            }, function(error, module) {
+                assertCSSText(module, EXPECTED_AUTOPREFIXED, done);
+            });
+        });
+
+        it('should transform SCSS without vendor prefixes', function(done) {
+            var module = sassr.transform({
+                data: scssSources.autoprefixed,
+                includePaths: [
+                    path.dirname(scssPaths.autoprefixed)
+                ]
+            }, {
+                add: false,
+                remove: false,
+            }, function(error, module) {
+                assertCSSText(module, EXPECTED_AUTOPREFIXED_DISABLED, done);
+            });
+        });
+
+        it('should error on bad CSS', function(done) {
             sassr.transform({
                 data: cssSources.bad,
                 includePaths: [
                     path.dirname(cssPaths.bad)
                 ]
-            }, function(error, module) {
-                assertCSSText(module, '', done);
+            }, {}, function(error, module) {
+                assert.instanceOf(error, Error);
+                assert.isUndefined(module);
+                done();
             });
         });
 
-        it('should fail gracefully on bad SCSS', function(done) {
+        it('should error on bad SCSS', function(done) {
             sassr.transform({
                 data: scssSources.bad,
                 includePaths: [
                     path.dirname(scssPaths.bad)
                 ]
-            }, function(error, module) {
-                assertCSSText(module, '', done);
+            }, {}, function(error, module) {
+                assert.instanceOf(error, Error);
+                assert.isUndefined(module);
+                done();
             });
         });
     });
@@ -194,7 +276,7 @@ describe('sassr', function() {
                 includePaths: [
                     path.dirname(cssPaths.good)
                 ]
-            });
+            }, {});
 
             assertCSSText(module, EXPECTED_GOOD_CSS);
         });
@@ -205,32 +287,56 @@ describe('sassr', function() {
                 includePaths: [
                     path.dirname(scssPaths.good)
                 ]
-            });
+            }, {});
 
             assertCSSText(module, EXPECTED_GOOD_SCSS);
         });
 
-        it('should fail gracefully on bad CSS', function() {
+        it('should transform SCSS with vendor prefixes', function() {
             var module = sassr.transformSync({
-                data: cssSources.bad,
+                data: scssSources.autoprefixed,
                 includePaths: [
-                    path.dirname(cssPaths.bad)
+                    path.dirname(scssPaths.autoprefixed)
                 ]
-            });
+            }, {});
 
-            assertCSSText(module, '');
+            assertCSSText(module, EXPECTED_AUTOPREFIXED);
         });
 
-        it('should fail gracefully on bad SCSS', function() {
-            var module = sassr.transformSync({
-                data: scssSources.bad,
+        it('should transform SCSS without vendor prefixes', function() {
+            var module = sassr.transform({
+                data: scssSources.autoprefixed,
                 includePaths: [
-                    path.dirname(scssPaths.bad)
+                    path.dirname(scssPaths.autoprefixed)
                 ]
+            }, {
+                add: false,
+                remove: false,
             });
 
-            assertCSSText(module, '');
+            assertCSSText(module, EXPECTED_AUTOPREFIXED_DISABLED);
+        });
+
+        it('should error on bad CSS', function() {
+            assert.throws(function() {
+                sassr.transformSync({
+                    data: cssSources.bad,
+                    includePaths: [
+                        path.dirname(cssPaths.bad)
+                    ]
+                }, {});
+            });
+        });
+
+        it('should error on bad SCSS', function() {
+            assert.throws(function() {
+                sassr.transformSync({
+                    data: scssSources.bad,
+                    includePaths: [
+                        path.dirname(scssPaths.bad)
+                    ]
+                }, {});
+            });
         });
     });
-
 });
