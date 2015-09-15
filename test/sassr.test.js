@@ -85,6 +85,16 @@ describe('sassr', function() {
             });
         });
 
+        it('should use transformCSS option asynchronously', function(done) {
+            sassrize(scssPaths.good, {
+                transformCSS: function(css, callback) {
+                    callback(null, css);
+                }
+            }, function(module) {
+                assertCSSText(module, EXPECTED_GOOD_SCSS, done);
+            });
+        });
+
         it('should error on bad CSS', function(done) {
             sassrize(cssPaths.bad, {}, function(error) {
                 assert.equal(error, EXPECTED_ERROR);
@@ -128,6 +138,16 @@ describe('sassr', function() {
             sassrizeSync(txtPath, {}, function(module) {
                 assert.equal(module, 'This is not CSS.\n');
                 done();
+            });
+        });
+
+        it('should use transformCSS option synchronously', function(done) {
+            sassrizeSync(scssPaths.good, {
+                transformCSS: function(css) {
+                    return css;
+                }
+            }, function(module) {
+                assertCSSText(module, EXPECTED_GOOD_SCSS, done);
             });
         });
 
@@ -237,6 +257,20 @@ describe('sassr', function() {
                     includePaths: [
                         path.dirname(scssPaths.bad)
                     ]
+                });
+            });
+        });
+
+        it('should error when transformCSS option does not return a string', function() {
+            assert.throws(function() {
+                sassr.transformSync({
+                    data: scssSources.good,
+                    includePaths: [
+                        path.dirname(scssPaths.good)
+                    ],
+                    transformCSS: function(css) {
+                        return undefined;
+                    }
                 });
             });
         });
