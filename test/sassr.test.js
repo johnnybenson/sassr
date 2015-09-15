@@ -85,9 +85,9 @@ describe('sassr', function() {
             });
         });
 
-        it('should use transformCSS option asynchronously', function(done) {
+        it('should use cssPostProcessor option asynchronously', function(done) {
             sassrize(scssPaths.good, {
-                transformCSS: function(css, callback) {
+                cssPostProcessor: function(css, callback) {
                     callback(null, css);
                 }
             }, function(module) {
@@ -141,9 +141,9 @@ describe('sassr', function() {
             });
         });
 
-        it('should use transformCSS option synchronously', function(done) {
+        it('should use cssPostProcessor option synchronously', function(done) {
             sassrizeSync(scssPaths.good, {
-                transformCSS: function(css) {
+                cssPostProcessor: function(css) {
                     return css;
                 }
             }, function(module) {
@@ -261,14 +261,14 @@ describe('sassr', function() {
             });
         });
 
-        it('should error when transformCSS option does not return a string', function() {
+        it('should error when cssPostProcessor option does not return a string', function() {
             assert.throws(function() {
                 sassr.transformSync({
                     data: scssSources.good,
                     includePaths: [
                         path.dirname(scssPaths.good)
                     ],
-                    transformCSS: function(css) {
+                    cssPostProcessor: function(css) {
                         return undefined;
                     }
                 });
