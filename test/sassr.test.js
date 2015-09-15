@@ -39,7 +39,6 @@ describe('sassr', function() {
     function assertCSSText(source, cssText, callback) {
         callback = callback || function() {};
         var module = testUtils.loadAsModule(source);
-        assert.equal(module.getCSSText(), cssText);
         try {
             assert.equal(module.getCSSText(), cssText);
             callback();
