@@ -18,28 +18,33 @@ var EXPECTED_ERROR = '"property \\"We\\" must be followed by a \':\'"';
 describe('sassr', function() {
     var cssPaths = {
         good: require.resolve('./fixtures/good.css'),
-        bad: require.resolve('./fixtures/bad.css')
+        bad: require.resolve('./fixtures/bad.css'),
     };
     var cssSources = {
         good: fs.readFileSync(cssPaths.good).toString(),
-        bad: fs.readFileSync(cssPaths.bad).toString()
+        bad: fs.readFileSync(cssPaths.bad).toString(),
     };
 
     var scssPaths = {
         good: require.resolve('./fixtures/good.scss'),
-        bad: require.resolve('./fixtures/bad.scss')
+        bad: require.resolve('./fixtures/bad.scss'),
     };
     var scssSources = {
         good: fs.readFileSync(scssPaths.good).toString(),
-        bad: fs.readFileSync(scssPaths.bad).toString()
+        bad: fs.readFileSync(scssPaths.bad).toString(),
     };
 
     var txtPath = require.resolve('./fixtures/not-css.txt');
 
     function assertCSSText(source, cssText, callback) {
+        callback = callback || function() {};
         var module = testUtils.loadAsModule(source);
-        assert.equal(module.getCSSText(), cssText);
-        if (callback) { callback(); }
+        try {
+            assert.equal(module.getCSSText(), cssText);
+            callback();
+        } catch (error) {
+            callback(error);
+        }
     }
 
     it('should load and export sync, transform, and transformSync', function() {
@@ -51,7 +56,7 @@ describe('sassr', function() {
 
     describe('sassr', function() {
         function sassrize(path, opts, done) {
-            fs.createReadStream(path)
+            return fs.createReadStream(path)
                 .pipe(sassr(path, opts))
                 .on('error', function(error) {
                     done(error);
@@ -80,14 +85,14 @@ describe('sassr', function() {
             });
         });
 
-        it('should return an error message on bad CSS', function(done) {
+        it('should error on bad CSS', function(done) {
             sassrize(cssPaths.bad, {}, function(error) {
                 assert.equal(error, EXPECTED_ERROR);
                 done();
             });
         });
 
-        it('should return an error message on bad SCSS', function(done) {
+        it('should error on bad SCSS', function(done) {
             sassrize(scssPaths.bad, {}, function(error) {
                 assert.equal(error, EXPECTED_ERROR);
                 done();
@@ -126,14 +131,14 @@ describe('sassr', function() {
             });
         });
 
-        it('should return an error message on bad CSS', function(done) {
+        it('should error on bad CSS', function(done) {
             sassrizeSync(cssPaths.bad, {}, function(error) {
                 assert.equal(error, EXPECTED_ERROR);
                 done();
             });
         });
 
-        it('should return an error message on bad SCSS', function(done) {
+        it('should error on bad SCSS', function(done) {
             sassrizeSync(scssPaths.bad, {}, function(error) {
                 assert.equal(error, EXPECTED_ERROR);
                 done();
@@ -164,25 +169,29 @@ describe('sassr', function() {
             });
         });
 
-        it('should fail gracefully on bad CSS', function(done) {
+        it('should error on bad CSS', function(done) {
             sassr.transform({
                 data: cssSources.bad,
                 includePaths: [
                     path.dirname(cssPaths.bad)
                 ]
             }, function(error, module) {
-                assertCSSText(module, '', done);
+                assert.instanceOf(error, Error);
+                assert.isUndefined(module);
+                done();
             });
         });
 
-        it('should fail gracefully on bad SCSS', function(done) {
+        it('should error on bad SCSS', function(done) {
             sassr.transform({
                 data: scssSources.bad,
                 includePaths: [
                     path.dirname(scssPaths.bad)
                 ]
             }, function(error, module) {
-                assertCSSText(module, '', done);
+                assert.instanceOf(error, Error);
+                assert.isUndefined(module);
+                done();
             });
         });
     });
@@ -210,26 +219,26 @@ describe('sassr', function() {
             assertCSSText(module, EXPECTED_GOOD_SCSS);
         });
 
-        it('should fail gracefully on bad CSS', function() {
-            var module = sassr.transformSync({
-                data: cssSources.bad,
-                includePaths: [
-                    path.dirname(cssPaths.bad)
-                ]
+        it('should error on bad CSS', function() {
+            assert.throws(function() {
+                sassr.transformSync({
+                    data: cssSources.bad,
+                    includePaths: [
+                        path.dirname(cssPaths.bad)
+                    ]
+                });
             });
-
-            assertCSSText(module, '');
         });
 
-        it('should fail gracefully on bad SCSS', function() {
-            var module = sassr.transformSync({
-                data: scssSources.bad,
-                includePaths: [
-                    path.dirname(scssPaths.bad)
-                ]
+        it('should error on bad SCSS', function() {
+            assert.throws(function() {
+                sassr.transformSync({
+                    data: scssSources.bad,
+                    includePaths: [
+                        path.dirname(scssPaths.bad)
+                    ]
+                });
             });
-
-            assertCSSText(module, '');
         });
     });
 
