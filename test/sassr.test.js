@@ -226,7 +226,7 @@ describe('sassr', function() {
                     includePaths: [
                         path.dirname(cssPaths.bad)
                     ]
-                }, {});
+                });
             });
         });
 
@@ -237,7 +237,7 @@ describe('sassr', function() {
                     includePaths: [
                         path.dirname(scssPaths.bad)
                     ]
-                }, {});
+                });
             });
         });
     });
