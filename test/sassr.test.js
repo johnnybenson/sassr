@@ -85,6 +85,16 @@ describe('sassr', function() {
             });
         });
 
+        it('should use cssPostProcessor option asynchronously', function(done) {
+            sassrize(scssPaths.good, {
+                cssPostProcessor: function(css, callback) {
+                    callback(null, css);
+                }
+            }, function(module) {
+                assertCSSText(module, EXPECTED_GOOD_SCSS, done);
+            });
+        });
+
         it('should error on bad CSS', function(done) {
             sassrize(cssPaths.bad, {}, function(error) {
                 assert.equal(error, EXPECTED_ERROR);
@@ -128,6 +138,16 @@ describe('sassr', function() {
             sassrizeSync(txtPath, {}, function(module) {
                 assert.equal(module, 'This is not CSS.\n');
                 done();
+            });
+        });
+
+        it('should use cssPostProcessor option synchronously', function(done) {
+            sassrizeSync(scssPaths.good, {
+                cssPostProcessor: function(css) {
+                    return css;
+                }
+            }, function(module) {
+                assertCSSText(module, EXPECTED_GOOD_SCSS, done);
             });
         });
 
@@ -237,6 +257,20 @@ describe('sassr', function() {
                     includePaths: [
                         path.dirname(scssPaths.bad)
                     ]
+                });
+            });
+        });
+
+        it('should error when cssPostProcessor option does not return a string', function() {
+            assert.throws(function() {
+                sassr.transformSync({
+                    data: scssSources.good,
+                    includePaths: [
+                        path.dirname(scssPaths.good)
+                    ],
+                    cssPostProcessor: function(css) {
+                        return undefined;
+                    }
                 });
             });
         });

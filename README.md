@@ -11,7 +11,7 @@
 Using [npm](http://npmjs.org):
 
 ```shell
-npm install -g sassr
+npm install sassr
 ```
 
 # usage
@@ -71,4 +71,19 @@ var b = browserify()
     .add('./some.js')
     .transform(sassConfig, sassr)
     .bundle().pipe(process.stdout);
+```
+
+## what if i want to use postcss/[whatever cool thing] too?
+
+Glad you asked! You can specify a function for `cssPostProcessor` and hook up whatever you want to it:
+
+```js
+var prefixer = postcss([ autoprefixer ]);
+var sassConfig = {
+    cssPostProcessor: function(css, callback) {
+      prefixer.process(css).then(function(result) {
+          callback(null, result);
+      });
+    }
+};
 ```
