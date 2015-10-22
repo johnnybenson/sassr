@@ -14,6 +14,9 @@ describe('utils', function() {
 
     var css = '.badge{background-color:#999;color:#fe57a1;}';
 
+    var url = '.abs{background-image:url(\'http://lazy.xxx/path/to/thing\');}.root{background-image:url(\'/path/to/thing\');.rel{background-image:url(\'path/to/thing\');}';
+    var urlTransformed = '.abs{background-image:url(\'http://lazy.xxx/path/to/thing\');}.root{background-image:url("http://lazy.xxx/path/to/thing");.rel{background-image:url("http://lazy.xxx/path/to/thing");}';
+
     describe('old ie context', function() {
         var OLD_IE_CONTEXT = {
             document: {
@@ -34,10 +37,15 @@ describe('utils', function() {
             libUtils = testUtils.loadAsModule(libUtilsSource, OLD_IE_CONTEXT);
         });
 
-        it('should load and export element, inject, and eject', function() {
+        it('should load and export element, insertHost, inject, and eject', function() {
             assert.isDefined(libUtils.element);
+            assert.isFunction(libUtils.insertHost);
             assert.isFunction(libUtils.inject);
             assert.isFunction(libUtils.eject);
+        });
+
+        it('should update url with insertHost', function() {
+            assert.equal(libUtils.insertHost(url, 'http://lazy.xxx'), urlTransformed);
         });
 
         it('should inject', function() {
