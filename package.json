@@ -1,6 +1,6 @@
 {
   "name": "sassr",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Browserify SASS transform",
   "main": "index.js",
   "scripts": {
@@ -32,5 +32,10 @@
     "chai": "^3.2.0",
     "concat-stream": "^1.5.0",
     "mocha": "^2.2.5"
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true
+    }
   }
 }
